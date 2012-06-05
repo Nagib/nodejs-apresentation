@@ -29,8 +29,7 @@ http.createServer(function (request, response) {
       // set the error page
       error_404(response);
     }
-
-  } else if (request.url === '/crossdomain.xml') {
+  } else if (request.url.search('/crossdomain.xml') === 0) {
 
     // set the crossdomain page
     crossdomain(response);
@@ -39,6 +38,7 @@ http.createServer(function (request, response) {
      // set the error page
     error_404(response);
   }
+
 }).listen(1227, '10.228.20.213');
 
 // initilize Images
