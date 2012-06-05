@@ -7,7 +7,16 @@ var TIMEZONES = {
     'Sapporo': [43.064167, 141.346945],
     'Osaka': [34.6937398415059, 135.502181947231],
     'Irkutsk': [52.2977778, 104.2963889],
-    'Pacific Time (US & Canada)': [40.7142691, -74.0059729]
+    'Brasilia': [-15.77972, -47.92972],
+    'London': [51.5085287758629, -0.125741958618164],
+    'Alaska': [64.0002778, -150.0002778],
+    'Santiago': [-33.456937736669424, -70.64826965332031],
+    'Paris': [48.85341, 2.3488],
+    'Amsterdam': [52.3740272046208, 4.88968849182129],
+    'Pacific Time (US & Canada)': [34.0522342, -118.2436849],  // Los Angeles
+    'Central Time (US & Canada)': [28.7505408, -82.5000976],  // Florida
+    'Eastern Time (US & Canada)': [40.7142691, -74.0059729],  // New York
+    'Mountain Time (US & Canada)': [39.7391536, -104.9847034]  // Denver
 };
 
 var twitter = {
