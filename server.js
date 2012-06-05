@@ -1,10 +1,22 @@
 var http = require('http');
-var TwitterNode = require('twitter-node').TwitterNode
-  , util        = require('util')
+
+
+var util        = require('util')
   , images      = require('./libraries/images.js').images
   , trends      = require('./libraries/trends.js').trends
+  , twitter     = require('./libraries/twitter.js').twitter
   , error_404   = require('./helpers/url.js').error_404
   , crossdomain = require('./helpers/url.js').crossdomain;
+
+var arguments = process.argv.slice(2);
+if (arguments.length !== 2) {
+  console.log('Usage: node server.js TWITTER_USER TWITTER_PASSWORD');
+  process.exit(1);
+}
+
+var twitter_user = arguments[0];
+var twitter_password = arguments[1];
+
 
 http.createServer(function (request, response) {
 
@@ -29,20 +41,40 @@ http.createServer(function (request, response) {
       // set the error page
       error_404(response);
     }
-  } else if (request.url.search('/crossdomain.xml') === 0) {
+
+  } else if (request.url === '/crossdomain.xml') {
 
     // set the crossdomain page
     crossdomain(response);
+  } else if (request.url.search('/twitter/fetch') === 0) {
+    var hashtag = request.url.slice(15);
+
+    if (hashtag !== twitter.HASHTAG) {
+        twitter.tweets = [];
+
+        twitter.twit.trackKeywords = [];
+        twitter.twit.track(hashtag);
+        twitter.twit.stream();
+
+        twitter.HASHTAG = hashtag;
+    }
+
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.end(JSON.stringify(twitter.tweets));
+
+    twitter.tweets = [];
   } else {
 
      // set the error page
     error_404(response);
   }
-
-}).listen(1227, '10.228.20.213');
+}).listen(1227, '0.0.0.0');
 
 // initilize Images
 images.initialize();
 
 // initilize Trends
 trends.initialize();
+
+// initilize Twitter
+twitter.initialize(twitter_user, twitter_password);
