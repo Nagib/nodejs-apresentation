@@ -27,10 +27,16 @@ var twitter = {
                 }
 
                 // Tries to set a coordinate based on the user timezone
-                if (tweet.place === null && tweet.coordinates === null && TIMEZONES[tweet.user.time_zone] !== undefined) {
-                    tweet.coordinates = {
-                        "type": "Point",
-                        "coordinates": TIMEZONES[tweet.user.time_zone]
+                if (tweet.place === null && tweet.coordinates === null) {
+
+                    if (TIMEZONES[tweet.user.time_zone] !== undefined) {
+                        tweet.coordinates = {
+                            "type": "Point",
+                            "coordinates": TIMEZONES[tweet.user.time_zone]
+                        };
+                    } else {
+                        // Ignores tweets without a location
+                        return;
                     }
                 }
 
