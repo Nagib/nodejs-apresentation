@@ -93,7 +93,7 @@ var trends = {
         'Content-type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.5 Safari/534.55.3',
         'Accept': 'text/plain',
-        'Set-Cookie': 'SID=DQAAAOQAAACBbkf5G19RwvHkAABr5oRn0WZiM8tvocoIT8lrlaWPdPiiW-fBQYFq0pGFsB820JY6a3gGE2CJUTUmx4C8oxHNYElBmH-_c5Nfbyf6zzmjzjbJHxvYNsojcJWAwF9YlOnbOfGgQVK704XA26h4asvwWdBEiwG61IHvoCfcjHz54Wu1FJ-GqAmsBM7xV2t-FT0CuxWw54ay3g28Ig9Nx3uHaQOa9B-BvabGYPFJilGTl83MTtFN6xkrSXsqCKkI3NRGw7ZNzkA-dFsTwH7j0aK1tH-7FfDAUGYXYAAHnnwIe3O9262FgVIzH6ZKakK2GMc;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT, HSID=A5lG-zkl3oU5Cla0I;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;HttpOnly, SSID=AVGAUBY3dZdimSGWx;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;Secure;HttpOnly'
+        'Cookie': 'SID=DQAAAOQAAACBbkf5G19RwvHkAABr5oRn0WZiM8tvocoIT8lrlaWPdPiiW-fBQYFq0pGFsB820JY6a3gGE2CJUTUmx4C8oxHNYElBmH-_c5Nfbyf6zzmjzjbJHxvYNsojcJWAwF9YlOnbOfGgQVK704XA26h4asvwWdBEiwG61IHvoCfcjHz54Wu1FJ-GqAmsBM7xV2t-FT0CuxWw54ay3g28Ig9Nx3uHaQOa9B-BvabGYPFJilGTl83MTtFN6xkrSXsqCKkI3NRGw7ZNzkA-dFsTwH7j0aK1tH-7FfDAUGYXYAAHnnwIe3O9262FgVIzH6ZKakK2GMc;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT, HSID=A5lG-zkl3oU5Cla0I;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;HttpOnly, SSID=AVGAUBY3dZdimSGWx;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;Secure;HttpOnly'
       }
     };
 
@@ -173,22 +173,11 @@ var trends = {
    */
   end: function(server_response) {
 
-    // verify the authentication
-    if (! trends.auth.logged) {
+    // set the server header
+    server_response.writeHead(200, {'Content-Type': 'text/csv'});
 
-       //log the error
-        console.log('User not logged for Google Trends');
-
-        // show the 404 error
-        error_404(server_response);
-    } else {
-
-      // set the server header
-      server_response.writeHead(200, {'Content-Type': 'text/csv'});
-
-      // set the content and send the end
-      server_response.end(trends._data);
-    }
+    // set the content and send the end
+    server_response.end(trends._data);
   },
 };
 
