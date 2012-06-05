@@ -1,5 +1,6 @@
 var http = require('http');
 
+var CONFIG = require('./config').config;
 
 var util        = require('util')
   , images      = require('./libraries/images.js').images
@@ -8,18 +9,7 @@ var util        = require('util')
   , error_404   = require('./helpers/url.js').error_404
   , crossdomain = require('./helpers/url.js').crossdomain;
 
-var arguments = process.argv.slice(2);
-if (arguments.length !== 2) {
-  console.log('Usage: node server.js TWITTER_USER TWITTER_PASSWORD');
-  process.exit(1);
-}
-
-var twitter_user = arguments[0];
-var twitter_password = arguments[1];
-
-
 http.createServer(function (request, response) {
-
   // verify which url the user access
   if (request.url.search('/images/fetch') === 0) {
 
@@ -68,7 +58,7 @@ http.createServer(function (request, response) {
      // set the error page
     error_404(response);
   }
-}).listen(1227, '0.0.0.0');
+}).listen(CONFIG.port, CONFIG.host);
 
 // initilize Images
 images.initialize();
@@ -77,4 +67,4 @@ images.initialize();
 // trends.initialize();
 
 // initilize Twitter
-twitter.initialize(twitter_user, twitter_password);
+twitter.initialize(CONFIG.twitter_user, CONFIG.twitter_password);
