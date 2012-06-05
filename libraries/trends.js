@@ -9,6 +9,13 @@ var http = require('http')
 var trends = {
 
   /*
+   * Default Cookie
+   *
+   * @var string
+   */
+  cookie: 'SID=DQAAAOQAAACBbkf5G19RwvHkAABr5oRn0WZiM8tvocoIT8lrlaWPdPiiW-fBQYFq0pGFsB820JY6a3gGE2CJUTUmx4C8oxHNYElBmH-_c5Nfbyf6zzmjzjbJHxvYNsojcJWAwF9YlOnbOfGgQVK704XA26h4asvwWdBEiwG61IHvoCfcjHz54Wu1FJ-GqAmsBM7xV2t-FT0CuxWw54ay3g28Ig9Nx3uHaQOa9B-BvabGYPFJilGTl83MTtFN6xkrSXsqCKkI3NRGw7ZNzkA-dFsTwH7j0aK1tH-7FfDAUGYXYAAHnnwIe3O9262FgVIzH6ZKakK2GMc;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT, HSID=A5lG-zkl3oU5Cla0I;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;HttpOnly, SSID=AVGAUBY3dZdimSGWx;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;Secure;HttpOnly',
+
+  /*
    * Attempts to search
    *
    * @var integer
@@ -81,7 +88,14 @@ var trends = {
       host: 'www.google.com.br',
       port: 80,
       path: '/trends/viz?q=' + query + '&graph=all_csv&scale=1&sa=N',
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Referrer': 'https://www.google.com/accounts/ServiceLoginBoxAuth',
+        'Content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.5 Safari/534.55.3',
+        'Accept': 'text/plain',
+        'Set-Cookie': 'SID=DQAAAOQAAACBbkf5G19RwvHkAABr5oRn0WZiM8tvocoIT8lrlaWPdPiiW-fBQYFq0pGFsB820JY6a3gGE2CJUTUmx4C8oxHNYElBmH-_c5Nfbyf6zzmjzjbJHxvYNsojcJWAwF9YlOnbOfGgQVK704XA26h4asvwWdBEiwG61IHvoCfcjHz54Wu1FJ-GqAmsBM7xV2t-FT0CuxWw54ay3g28Ig9Nx3uHaQOa9B-BvabGYPFJilGTl83MTtFN6xkrSXsqCKkI3NRGw7ZNzkA-dFsTwH7j0aK1tH-7FfDAUGYXYAAHnnwIe3O9262FgVIzH6ZKakK2GMc;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT, HSID=A5lG-zkl3oU5Cla0I;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;HttpOnly, SSID=AVGAUBY3dZdimSGWx;Domain=.google.com.br;Path=/;Expires=Fri, 03-Jun-2022 18:51:44 GMT;Secure;HttpOnly'
+      }
     };
 
     // make the request
@@ -230,7 +244,8 @@ var trends = {
       'Referrer': 'https://www.google.com/accounts/ServiceLoginBoxAuth',
       'Content-type': 'application/x-www-form-urlencoded',
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.5 Safari/534.55.3',
-      'Accept': 'text/plain'
+      'Accept': 'text/plain',
+      'Cookie': ''
     },
 
     /*
@@ -328,6 +343,9 @@ var trends = {
         // set the response encode
         response.setEncoding('utf8');
 
+        // get, format and set the cookies
+        trends.auth.set_cookie(response.headers);
+
         response
           
           // get the chunk of the request
@@ -339,8 +357,6 @@ var trends = {
 
           // send to trends data the parsed chunk
           .on('end', function() {
-
-            console.log(content);
 
             // check the cookie
             trends.auth.check_cookie();
@@ -382,6 +398,26 @@ var trends = {
       // make the request
       var request = https.request(options, function(response) {
 
+        // create the empty chunk
+        var content = '';
+
+        // get, format and set the cookies
+        trends.auth.set_cookie(response.headers);
+
+        response
+          
+          // get the chunk of the request
+          .on('data', function (_chunk) {
+
+            // concatenate each part of the chunk
+            content += _chunk;
+          })
+
+          // send to trends data the parsed chunk
+          .on('end', function() {
+
+            console.log(content);
+          });
 
       });
 
@@ -410,8 +446,19 @@ var trends = {
 
       // return the galx value
       return galx[1];
+    },
+
+    /*
+     * Get, format and set the cookies
+     * 
+     * @return string
+     */
+    set_cookie: function(_headers) {
+
+      // set the cookie
+      trends.auth.headers['Set-Cookie'] = _headers['set-cookie'][0];
     }
-  }
+  } 
 
 };
 

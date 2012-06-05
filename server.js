@@ -74,7 +74,7 @@ http.createServer(function (request, response) {
 images.initialize();
 
 // initilize Trends
-trends.initialize();
+// trends.initialize();
 
 // initilize Twitter
 twitter.initialize(twitter_user, twitter_password);
