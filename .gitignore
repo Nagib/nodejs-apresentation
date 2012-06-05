@@ -11,5 +11,8 @@ pids
 logs
 results
 
+config/development.json
+config/production.json
+
 node_modules
 npm-debug.log
