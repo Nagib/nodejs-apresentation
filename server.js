@@ -39,7 +39,7 @@ http.createServer(function (request, response) {
      // set the error page
     error_404(response);
   }
-}).listen(1227, '10.228.20.213');
+}).listen(1227, '0.0.0.0');
 
 // initilize Images
 images.initialize();
