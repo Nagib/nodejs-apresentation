@@ -5,9 +5,11 @@ var CONFIG = require('./config').config;
 var util        = require('util')
   , images      = require('./libraries/images.js').images
   , trends      = require('./libraries/trends.js').trends
-  , twitter     = require('./libraries/twitter.js').twitter
+  , twit     = require('./libraries/twitter.js').twit
   , error_404   = require('./helpers/url.js').error_404
   , crossdomain = require('./helpers/url.js').crossdomain;
+
+var last_hashtag = 'ahsdasjdbsjah';
 
 http.createServer(function (request, response) {
   // verify which url the user access
@@ -40,22 +42,22 @@ http.createServer(function (request, response) {
   } else if (request.url.search('/twitter/fetch') === 0) {
     var hashtag = request.url.slice(15);
 
-    /*
-    if (hashtag !== twitter.HASHTAG) {
-        twitter.tweets = [];
+    if (hashtag !== last_hashtag) {
+        if (twit.stream !== undefined) {
+          twit.stream.destroy();
+        }
 
-        twitter.twit.trackKeywords = [];
-        twitter.twit.track(hashtag);
-        twitter.twit.stream();
+        twit.tweets = [];
 
-        twitter.HASHTAG = hashtag;
+        twit.start_stream([hashtag]);
+
+        last_hashtag = hashtag;
     }
-    */
 
     response.writeHead(200, {'Content-Type': 'application/json'});
-    response.end(JSON.stringify(twitter.tweets));
+    response.end(JSON.stringify(twit.tweets));
 
-    twitter.tweets = [];
+    twit.tweets = [];
   } else {
 
      // set the error page
@@ -70,4 +72,4 @@ images.initialize();
 // trends.initialize();
 
 // initilize Twitter
-twitter.initialize(CONFIG.twitter_user, CONFIG.twitter_password);
+//twitter.initialize(CONFIG);

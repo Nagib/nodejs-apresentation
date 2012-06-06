@@ -1,5 +1,6 @@
 var twitter = require('twitter');
 var util = require('util');
+var CONFIG = require('../config').config;
 
 var TIMEZONES = {
     'Osaka': [34.6937398415059, 135.502181947231],
@@ -118,107 +119,70 @@ var TIMEZONES = {
     'Mexico City': [19.428472427036, -99.12766456604]
 };
 
-var Twitter = {
-    HASHTAG: 'sdfkjdskjfdkb',
+var TWIT = {
+    stream: undefined,
 
-    tweets: [], // Our 'database' haha
+    // Our 'database' haha
+    tweets: [],
 
-    initialize: function (user, password) {
-        Twitter.twit = new twitter({
-                consumer_key: 'xOiYflx49pS462Z7ZE9Aw',
-                consumer_secret: '5fPOVEOKHTypm3xKu59h4q7GJPnry6mbAsvbXi4jdA',
-                access_token_key: '137104641-mI8Ir3rC1GMNKvMmBXi8MeAK2kGeKJEhUulbwiqt',
-                access_token_secret: 'QAklND1F2oy6HCgqeEE5qXxhRjTZL5B8uNWXpVjNg'
+    start_stream: function (hashtag_list) {
+        new twitter({
+                consumer_key: CONFIG.consumer_key,
+                consumer_secret: CONFIG.consumer_secret,
+                access_token_key: CONFIG.access_token_key,
+                access_token_secret: CONFIG.access_token_secret
             })
+            .stream(
+                'statuses/filter', {
+                    track: hashtag_list
+                },
+                function(stream) {
+                    TWIT.stream = stream;
 
-            .stream('statuses/sample', function(stream) {
-                stream.on('data', function(tweet) {
-                    if (tweet.delete !== undefined) {
-                        return;
-                    }
-
-                    // Limits the tweets buffer to 1000 enttries
-                    if (Twitter.tweets.length > 1000) {
-                        Twitter.tweets.shift();
-                    }
-
-                    // Tries to set a coordinate based on the user timezone
-                    if (tweet.coordinates === null) {
-                        if (TIMEZONES[tweet.user.time_zone] !== undefined) {
-                            tweet.coordinates = {
-                                'type': 'Point',
-                                'coordinates': TIMEZONES[tweet.user.time_zone]
-                            };
-                        } else {
-                            // Ignores tweets without a location
-                            // if (tweet.user.time_zone !== null) {
-                            //     console.log(tweet.user.time_zone);
-                            // }
+                    stream.on('data', function(tweet) {
+                        if (tweet.delete !== undefined) {
                             return;
                         }
-                    }
 
-                    Twitter.tweets.push({
-                        text: tweet.text,
-                        coordinates: tweet.coordinates,
-                        user_profile_image_url: tweet.user.profile_image_url,
-                        user_screen_name: tweet.user.screen_name,
-                        user_location: tweet.user.location,
-                        user_time_zone: tweet.user.time_zone
+                        // Limits the tweets buffer to 1000 enttries
+                        if (TWIT.tweets.length > 1000) {
+                            TWIT.tweets.shift();
+                        }
+
+                        // Tries to set a coordinate based on the user timezone
+                        if (tweet.coordinates === null) {
+                            if (TIMEZONES[tweet.user.time_zone] !== undefined) {
+                                tweet.coordinates = {
+                                    'type': 'Point',
+                                    'coordinates': TIMEZONES[tweet.user.time_zone]
+                                };
+                            } else {
+                                // Ignores tweets without a location
+                                // if (tweet.user.time_zone !== null) {
+                                //     console.log(tweet.user.time_zone);
+                                // }
+                                return;
+                            }
+                        }
+
+                        TWIT.tweets.push({
+                            text: tweet.text,
+                            coordinates: tweet.coordinates,
+                            user_profile_image_url: tweet.user.profile_image_url,
+                            user_screen_name: tweet.user.screen_name,
+                            user_location: tweet.user.location,
+                            user_time_zone: tweet.user.time_zone
+                        });
+                    })
+                    .on('error', function (error) {
+                        setTimeout(function () {
+                            TWIT.start_stream(hashtag_list);
+                        }, 4000);
                     });
-                })
-                .on('error', function (error) {
-                    console.log('error', error);
                 });
-            });
-            /*
-            .addListener('tweet', function(tweet) {
-                // Limits the tweets buffer to 1000 enttries
-                if (twitter.tweets.length > 1000) {
-                    twitter.tweets.shift();
-                }
-
-                // Tries to set a coordinate based on the user timezone
-                if (tweet.coordinates === null) {
-                    if (TIMEZONES[tweet.user.time_zone] !== undefined) {
-                        tweet.coordinates = {
-                            'type': 'Point',
-                            'coordinates': TIMEZONES[tweet.user.time_zone]
-                        };
-                    } else {
-                        // Ignores tweets without a location
-                        // if (tweet.user.time_zone !== null) {
-                        //     console.log(tweet.user.time_zone);
-                        // }
-                        return;
-                    }
-                }
-
-                twitter.tweets.push({
-                    text: tweet.text,
-                    coordinates: tweet.coordinates,
-                    user_profile_image_url: tweet.user.profile_image_url,
-                    user_screen_name: tweet.user.screen_name,
-                    user_location: tweet.user.location,
-                    user_time_zone: tweet.user.time_zone
-                });
-            })
-            .addListener('limit', function(limit) {
-                util.puts('LIMIT: ' + util.inspect(limit));
-            })
-            .addListener('delete', function(del) {
-                util.puts('DELETE: ' + util.inspect(del));
-            })
-            .addListener('end', function(resp) {
-                util.puts('wave goodbye... ' + resp.statusCode);
-            })
-            // Make sure you listen for errors, otherwise they are thrown
-            .addListener('error', function(error) {
-                console.log(error.message);
-            });
-            */
     }
 };
 
+
 // Export module
-module.exports.twitter = Twitter;
+module.exports.twit = TWIT;
