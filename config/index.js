@@ -3,6 +3,8 @@ function read(filename) {
     return JSON.parse(require('fs').readFileSync('./config/' + filename + '.json', 'utf-8'));
 }
 
+exports.read = read;
+
 function merge(obj1, obj2) {
     for (var attrname in obj2) {
         obj1[attrname] = obj2[attrname];

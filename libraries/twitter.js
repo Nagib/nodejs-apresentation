@@ -123,9 +123,16 @@ var TWIT = {
     stream: undefined,
 
     // Our 'database' haha
-    tweets: [],
+    tweets: {},
 
     start_stream: function (hashtag_list) {
+        console.log('Tracking start: ', hashtag_list);
+
+        // Setups the database
+        hashtag_list.forEach(function (hashtag) {
+            TWIT.tweets[hashtag] = [];
+        });
+
         new twitter({
                 consumer_key: CONFIG.consumer_key,
                 consumer_secret: CONFIG.consumer_secret,
@@ -144,37 +151,44 @@ var TWIT = {
                             return;
                         }
 
-                        // Limits the tweets buffer to 1000 enttries
-                        if (TWIT.tweets.length > 1000) {
-                            TWIT.tweets.shift();
-                        }
+                        hashtag_list
+                            .filter(function (hashtag) {
+                                return tweet.text.toLowerCase().search(hashtag.toLowerCase()) !== -1;
+                            })
+                            .forEach(function (hashtag) {
+                                // Limits the tweets buffer to 1000 enttries
+                                if (TWIT.tweets[hashtag].length > 1000) {
+                                    TWIT.tweets[hashtag].shift();
+                                }
 
-                        // Tries to set a coordinate based on the user timezone
-                        if (tweet.coordinates === null) {
-                            if (TIMEZONES[tweet.user.time_zone] !== undefined) {
-                                tweet.coordinates = {
-                                    'type': 'Point',
-                                    'coordinates': TIMEZONES[tweet.user.time_zone]
-                                };
-                            } else {
-                                // Ignores tweets without a location
-                                // if (tweet.user.time_zone !== null) {
-                                //     console.log(tweet.user.time_zone);
-                                // }
-                                return;
-                            }
-                        }
+                                // Tries to set a coordinate based on the user timezone
+                                if (tweet.coordinates === null) {
+                                    if (TIMEZONES[tweet.user.time_zone] !== undefined) {
+                                        tweet.coordinates = {
+                                            'type': 'Point',
+                                            'coordinates': TIMEZONES[tweet.user.time_zone]
+                                        };
+                                    } else {
+                                        // Ignores tweets without a location
+                                        // if (tweet.user.time_zone !== null) {
+                                        //     console.log(tweet.user.time_zone);
+                                        // }
+                                        return;
+                                    }
+                                }
 
-                        TWIT.tweets.push({
-                            text: tweet.text,
-                            coordinates: tweet.coordinates,
-                            user_profile_image_url: tweet.user.profile_image_url,
-                            user_screen_name: tweet.user.screen_name,
-                            user_location: tweet.user.location,
-                            user_time_zone: tweet.user.time_zone
-                        });
+                                TWIT.tweets[hashtag].push({
+                                    text: tweet.text,
+                                    coordinates: tweet.coordinates,
+                                    user_profile_image_url: tweet.user.profile_image_url,
+                                    user_screen_name: tweet.user.screen_name,
+                                    user_location: tweet.user.location,
+                                    user_time_zone: tweet.user.time_zone
+                                });
+                            });
                     })
                     .on('error', function (error) {
+                        console.log('Twitter error:', error);
                         setTimeout(function () {
                             TWIT.start_stream(hashtag_list);
                         }, 4000);
