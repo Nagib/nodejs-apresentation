@@ -134,15 +134,17 @@ var twitter = {
                 }
 
                 // Tries to set a coordinate based on the user timezone
-                if (tweet.place === null && tweet.coordinates === null) {
-
+                if (tweet.coordinates === null) {
                     if (TIMEZONES[tweet.user.time_zone] !== undefined) {
                         tweet.coordinates = {
-                            "type": "Point",
-                            "coordinates": TIMEZONES[tweet.user.time_zone]
+                            'type': 'Point',
+                            'coordinates': TIMEZONES[tweet.user.time_zone]
                         };
                     } else {
                         // Ignores tweets without a location
+                        // if (tweet.user.time_zone !== null) {
+                        //     console.log(tweet.user.time_zone);
+                        // }
                         return;
                     }
                 }
@@ -150,7 +152,6 @@ var twitter = {
                 twitter.tweets.push({
                     text: tweet.text,
                     coordinates: tweet.coordinates,
-                    place: tweet.place,
                     user_profile_image_url: tweet.user.profile_image_url,
                     user_screen_name: tweet.user.screen_name,
                     user_location: tweet.user.location,
@@ -159,13 +160,13 @@ var twitter = {
             })
             /*
             .addListener('limit', function(limit) {
-                util.puts("LIMIT: " + util.inspect(limit));
+                util.puts('LIMIT: ' + util.inspect(limit));
             })
             .addListener('delete', function(del) {
-                util.puts("DELETE: " + util.inspect(del));
+                util.puts('DELETE: ' + util.inspect(del));
             })
             .addListener('end', function(resp) {
-                util.puts("wave goodbye... " + resp.statusCode);
+                util.puts('wave goodbye... ' + resp.statusCode);
             })
             */
             // Make sure you listen for errors, otherwise they are thrown
