@@ -13,6 +13,7 @@ results
 
 config/development.json
 config/production.json
+config/hashtag.json
 
 node_modules
 npm-debug.log
