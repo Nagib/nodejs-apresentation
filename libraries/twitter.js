@@ -132,8 +132,43 @@ var Twitter = {
             })
 
             .stream('statuses/sample', function(stream) {
-                stream.on('data', function(data) {
-                    //console.log(util.inspect(data));
+                stream.on('data', function(tweet) {
+                    if (tweet.delete !== undefined) {
+                        return;
+                    }
+
+                    // Limits the tweets buffer to 1000 enttries
+                    if (Twitter.tweets.length > 1000) {
+                        Twitter.tweets.shift();
+                    }
+
+                    // Tries to set a coordinate based on the user timezone
+                    if (tweet.coordinates === null) {
+                        if (TIMEZONES[tweet.user.time_zone] !== undefined) {
+                            tweet.coordinates = {
+                                'type': 'Point',
+                                'coordinates': TIMEZONES[tweet.user.time_zone]
+                            };
+                        } else {
+                            // Ignores tweets without a location
+                            // if (tweet.user.time_zone !== null) {
+                            //     console.log(tweet.user.time_zone);
+                            // }
+                            return;
+                        }
+                    }
+
+                    Twitter.tweets.push({
+                        text: tweet.text,
+                        coordinates: tweet.coordinates,
+                        user_profile_image_url: tweet.user.profile_image_url,
+                        user_screen_name: tweet.user.screen_name,
+                        user_location: tweet.user.location,
+                        user_time_zone: tweet.user.time_zone
+                    });
+                })
+                .on('error', function (error) {
+                    console.log('error', error);
                 });
             });
             /*
