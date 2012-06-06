@@ -31,7 +31,7 @@ var trends = {
 
   /*
    * Credentials for sign in on Google
-   * 
+   *
    * @var array
    */
   credentials: {
@@ -41,15 +41,15 @@ var trends = {
 
   /*
    * Content of search result
-   * 
+   *
    * @var array
    */
   _data: [],
 
   /*
    * __construct
-   * 
-   * @param http.ServerResponse 
+   *
+   * @param http.ServerResponse
    * @return void
    */
   initialize: function() {
@@ -60,33 +60,21 @@ var trends = {
    * on _data
    *
    * @param string Query or search expression
-   * @param http.ServerResponse 
+   * @param http.ServerResponse
    * @return boolean
    */
-  fetch: function(query, server_response) {
+  fetch: function(query, location, server_response) {
 
     // do not make unnecessary requests
     if (query.length < 1) return false;
 
-    // verify if the query persists
-    if (query === trends.query) {
-
-      // send "end" to server response
-      trends.end(server_response);
-
-      // dont fetch anymore
-      return true;
-    } else {
-
-      // set the new query
-      trends.query = query;
-    }
+    trends.query = query;
 
     // options for Google Trends request
     var options = {
       host: 'www.google.com.br',
       port: 80,
-      path: '/trends/viz?q=' + query + '&graph=all_csv&scale=1&sa=N',
+      path: '/trends/viz?q=' + query + '&graph=all_csv&scale=1&sa=N&geo=' + location,
       method: 'GET',
       headers: {
         'Referrer': 'https://www.google.com/accounts/ServiceLoginBoxAuth',
@@ -107,7 +95,7 @@ var trends = {
       response.setEncoding('utf8');
 
       response
-        
+
         // get the chunk of the request
         .on('data', function (_chunk) {
 
@@ -146,7 +134,7 @@ var trends = {
 
   /*
    * Get the actual search result
-   * 
+   *
    * @return void
    */
   get_data: function() {
@@ -155,7 +143,7 @@ var trends = {
 
   /*
    * Set the trends result
-   * 
+   *
    * @param string The string of trends
    * @return void
    */

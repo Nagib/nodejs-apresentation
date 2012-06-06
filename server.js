@@ -24,9 +24,10 @@ http.createServer(function (request, response) {
     // provide a proxy to Flash use the images
     images.proxy(request.url.slice(14), response);
   } else if (request.url.search('/trends/fetch') === 0) {
+    var param = request.url.slice(14).split('/');
 
     // fetch the trends from Google Trends, if false return 404 error
-    if (! trends.fetch(request.url.slice(14), response)) {
+    if (!trends.fetch(param[0], param[1], response)) {
 
       // set the error page
       error_404(response);
