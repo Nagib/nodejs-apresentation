@@ -1,4 +1,5 @@
-var TwitterNode = require('twitter-node').TwitterNode
+var twitter = require('twitter');
+var util = require('util');
 
 var TIMEZONES = {
     'Osaka': [34.6937398415059, 135.502181947231],
@@ -117,16 +118,25 @@ var TIMEZONES = {
     'Mexico City': [19.428472427036, -99.12766456604]
 };
 
-var twitter = {
+var Twitter = {
     HASHTAG: 'sdfkjdskjfdkb',
 
     tweets: [], // Our 'database' haha
 
     initialize: function (user, password) {
-        twitter.twit = new TwitterNode({
-                user: user,
-                password: password
+        Twitter.twit = new twitter({
+                consumer_key: 'xOiYflx49pS462Z7ZE9Aw',
+                consumer_secret: '5fPOVEOKHTypm3xKu59h4q7GJPnry6mbAsvbXi4jdA',
+                access_token_key: '137104641-mI8Ir3rC1GMNKvMmBXi8MeAK2kGeKJEhUulbwiqt',
+                access_token_secret: 'QAklND1F2oy6HCgqeEE5qXxhRjTZL5B8uNWXpVjNg'
             })
+
+            .stream('statuses/sample', function(stream) {
+                stream.on('data', function(data) {
+                    //console.log(util.inspect(data));
+                });
+            });
+            /*
             .addListener('tweet', function(tweet) {
                 // Limits the tweets buffer to 1000 enttries
                 if (twitter.tweets.length > 1000) {
@@ -158,7 +168,6 @@ var twitter = {
                     user_time_zone: tweet.user.time_zone
                 });
             })
-            /*
             .addListener('limit', function(limit) {
                 util.puts('LIMIT: ' + util.inspect(limit));
             })
@@ -168,13 +177,13 @@ var twitter = {
             .addListener('end', function(resp) {
                 util.puts('wave goodbye... ' + resp.statusCode);
             })
-            */
             // Make sure you listen for errors, otherwise they are thrown
             .addListener('error', function(error) {
                 console.log(error.message);
             });
+            */
     }
 };
 
 // Export module
-module.exports.twitter = twitter;
+module.exports.twitter = Twitter;

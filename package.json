@@ -15,7 +15,7 @@
         "url": "https://github.com/Nagib/nodejs-apresentation.git"
     },
     "dependencies" : {
-        "twitter-node":  "git://github.com/technoweenie/twitter-node.git"
+        "twitter":  "0.1.18"
     },
     "license": "MIT",
     "engine": {

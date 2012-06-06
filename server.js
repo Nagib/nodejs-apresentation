@@ -40,6 +40,7 @@ http.createServer(function (request, response) {
   } else if (request.url.search('/twitter/fetch') === 0) {
     var hashtag = request.url.slice(15);
 
+    /*
     if (hashtag !== twitter.HASHTAG) {
         twitter.tweets = [];
 
@@ -49,6 +50,7 @@ http.createServer(function (request, response) {
 
         twitter.HASHTAG = hashtag;
     }
+    */
 
     response.writeHead(200, {'Content-Type': 'application/json'});
     response.end(JSON.stringify(twitter.tweets));

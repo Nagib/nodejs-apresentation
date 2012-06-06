@@ -1,6 +1,8 @@
 {
     "host": "0.0.0.0",
     "port": "1227",
-    "twitter_user": "ops",
-    "twitter_password": "ops"
+    "consumer_key": "ops",
+    "consumer_secret": "ops",
+    "access_token_key": "ops",
+    "access_token_secret": "ops"
 }
