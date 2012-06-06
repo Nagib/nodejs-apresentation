@@ -7,13 +7,6 @@ var http = require('http')
 var images = {
 
   /*
-   * Attempts to search
-   *
-   * @var integer
-   */
-  attempts: 0,
-
-  /*
    * Query for the search
    *
    * @var string
@@ -35,11 +28,11 @@ var images = {
   per_page: 8,
 
   /*
-   * Images of search result
+   * Cache for Images of search result
    * 
-   * @var array
+   * @var object
    */
-  _data: [],
+  cache: {},
 
   /*
    * __construct
@@ -62,18 +55,22 @@ var images = {
     // do not make unnecessary requests
     if (query.length < 1) return false;
 
-    // verify if the query persists
-    if (query != images.query) {
+    // verify if the images cache for the query already created
+    if (! images.cache[query]) {
 
-      // set the new query
-      images.set_query(query);
+      // create the images cache for the query
+      images.cache[query] = {
+        _data: [],
+        start: 0,
+        last_index: -1
+      };
     }
 
     // options for Google Image API request
     var options = {
       host: 'ajax.googleapis.com',
       port: 80,
-      path: '/ajax/services/search/images?v=1.0&safe=active&imgsz=medium&q=' + query + '&start=' + images.start + '&rsz=' + images.per_page,
+      path: '/ajax/services/search/images?v=1.0&safe=active&imgsz=medium&q=' + query + '&start=' + images.cache[query].start + '&rsz=' + images.per_page,
       method: 'GET'
     };
 
@@ -102,40 +99,22 @@ var images = {
           var content = JSON.parse(chunk);
 
           // verify if results are null
-          if (content.responseData === null) {
-
-            // if the system try more than 3 attempts, abort the system
-            if (images.attempts > 3) {
-
-              // clear the attempts
-              images.attempts = 0;
-
-              // show the 404 error
-              error_404(server_response);
-            } else {
-              //log the attempts
-              console.log('[Images Fetch] Attempts: ' + images.attempts + ' Start: ' + images.start);
-
-              // reset the images
-              images.start_reset();
-
-              // remake the request
-              images.fetch(query, server_response);
-
-              // add count to attempts
-              images.attempts++;
-            }
-          } else {
+          if (content.responseData !== null) {
 
             // set the images data
-            images.set_data(content.responseData.results);
+            images.set_data(content.responseData.results, query);
 
-            // send the content to server response
-            images.end(JSON.stringify(images.get_data()), server_response, {'Content-Type': 'application/json'});
+            // set the new start index of the search
+            images.cache[query].start += images.per_page;
+          } else {
 
-            // clear the attempts
-            images.attempts = 0;
+            //log the error
+            console.log('Images error: can\'t fetch more images. Start: ' + images.cache[query].start + ' Query: ' + query);
           }
+
+          // send the content to server response
+          images.end(JSON.stringify(images.get_data(query)), server_response, {'Content-Type': 'application/json'});
+
         });
     });
 
@@ -153,37 +132,34 @@ var images = {
       // request end
       .end();
 
-    // set the new start index of the search
-    images.start += images.per_page;
-
     return true;
   },
 
   /*
    * Get the actual search result
    * 
+   * @param string query for get data
    * @return void
    */
-  get_data: function() {
-    return images._data;
+  get_data: function(query) {
+    return images.cache[query] && images.cache[query]._data ? images.cache[query]._data : [];
   },
 
   /*
    * Set and format the search result 
    * 
    * @param string The JSON of search result
+   * @param string query for set data
    * @return void
    */
-  set_data: function(result) {
-
-    var data = [];
+  set_data: function(result, query) {
 
     // format each image
     for(var i = 0, size = result.length; i < size; ++i) {
       var image = result[i];
 
-      // push the formated image to data
-      data.push({
+      // push the formated image to query cache data
+      images.cache[query]._data.push({
         url: image.unescapedUrl,
         width: image.width,
         height: image.height
@@ -191,8 +167,8 @@ var images = {
 
     }
 
-    // set the image data
-    images._data = data;
+    // set the max index created
+    images.cache[query].last_index = images.cache[query]._data.length - 1;
   },
 
   /*
@@ -208,48 +184,7 @@ var images = {
 
       // set the content and send the end
       server_response.end(content);
-
-      // clear images on server response end
-      images.clear();
    },
-
-  /*
-   * Set the new query for the search and reset the
-   * start value
-   *
-   * @param string Query for search
-   * @return void
-   */
-  set_query: function(query) {
-
-    // se the new query value
-    images.query = query;
-
-    // reset the images
-    images.start_reset();
-  },
-
-  /*
-   * Reset the start value
-   *
-   * @return void
-   */
-  start_reset: function() {
-
-    // reset the start value
-    images.start = 0;
-  },
-
-  /*
-   * Clear the search result
-   *
-   * @return void
-   */
-  clear: function() {
-
-    // clear the _data of images
-    images._data = [];
-  },
 
   /*
    * Get the host, port and path from a url
