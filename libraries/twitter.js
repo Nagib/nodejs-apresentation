@@ -169,7 +169,7 @@ var TWIT = {
                         text: tweet.text,
                         coordinates: {
                             'type': 'Point',
-                            'coordinates': TIMEZONES[TWIT.random(['Osaka', 'Tokyo', 'Hawaii', 'Sapporo'])],
+                            'coordinates': TIMEZONES[TWIT.random(['Osaka', 'Tokyo', 'Hawaii', 'Sapporo', 'London', 'Sao Paulo', 'Lisbon'])],
                         },
                         user_profile_image_url: tweet.profile_image_url,
                         user_screen_name: tweet.from_user,
