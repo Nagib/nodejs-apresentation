@@ -141,7 +141,7 @@ var TWIT = {
             })
             .stream(
                 'statuses/filter', {
-                    track: hashtag_list
+                    track: [hashtag_list.join(',')]
                 },
                 function(stream) {
                     TWIT.stream = stream;
