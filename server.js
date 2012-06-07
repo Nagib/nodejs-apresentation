@@ -85,8 +85,6 @@ http.createServer(function (request, response) {
     if (twit.tweets[hashtag] !== undefined) {
       response.writeHead(200, {'Content-Type': 'application/json'});
       response.end(JSON.stringify(twit.tweets[hashtag]));
-
-      twit.tweets[hashtag] = [];
     }
     else {
       error_404(response);
