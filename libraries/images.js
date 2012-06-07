@@ -64,7 +64,7 @@ var images = {
     var options = {
       host: 'ajax.googleapis.com',
       port: 80,
-      path: '/ajax/services/search/images?v=1.0&safe=active&imgsz=medium&q=' + query + '&start=' + images._cache[query].start + '&rsz=' + images.per_page,
+      path: '/ajax/services/search/images?v=1.0&safe=active&q=' + query + '&start=' + images._cache[query].start + '&rsz=' + images.per_page,
       method: 'GET'
     };
 
