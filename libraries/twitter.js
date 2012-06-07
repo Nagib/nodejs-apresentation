@@ -116,6 +116,9 @@ var TIMEZONES = {
     "Yerevan": [40.1811111, 44.5136111],
     "Zagreb": [45.8144436673781, 15.9779834747314],
     "Mid-Atlantic": [64.1354756236931, -21.8954086303711],
+    "Sao Paulo": [-23.5475, -46.63611111],
+    "Rio de Janeiro": [-22.90277778, -43.2075],
+    "Curitiba": [-25.42777778, -49.27305556],
     'Mexico City': [19.428472427036, -99.12766456604]
 };
 
@@ -124,6 +127,10 @@ var TWIT = {
 
     // Our 'database' haha
     tweets: {},
+
+    random: function (items) {
+        return items[Math.floor(Math.random()*items.length)];
+    },
 
     start_stream: function (hashtag_list) {
         console.log('Tracking start: ', hashtag_list);
@@ -144,7 +151,10 @@ var TWIT = {
                     TWIT.tweets.capricho.push({
                         id: tweet.id,
                         text: tweet.text,
-                        coordinates: null,
+                        coordinates: {
+                            'type': 'Point',
+                            'coordinates': TIMEZONES[TWIT.random(['Brasilia', 'Santiago', 'Curitiba', 'Sao Paulo', 'Rio de Janeiro'])],
+                        },
                         user_profile_image_url: tweet.profile_image_url,
                         user_screen_name: tweet.from_user,
                         user_location: '',
@@ -157,7 +167,10 @@ var TWIT = {
                     TWIT.tweets.hatsune.push({
                         id: tweet.id,
                         text: tweet.text,
-                        coordinates: null,
+                        coordinates: {
+                            'type': 'Point',
+                            'coordinates': TIMEZONES[TWIT.random(['Osaka', 'Tokyo', 'Hawaii', 'Sapporo'])],
+                        },
                         user_profile_image_url: tweet.profile_image_url,
                         user_screen_name: tweet.from_user,
                         user_location: '',
