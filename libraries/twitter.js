@@ -139,9 +139,35 @@ var TWIT = {
                 access_token_key: CONFIG.access_token_key,
                 access_token_secret: CONFIG.access_token_secret
             })
+            .search('@capricho', {rpp: 30, include_entities: true}, function (data) {
+                data.results.forEach(function (tweet) {
+                    TWIT.tweets.capricho.push({
+                        id: tweet.id,
+                        text: tweet.text,
+                        coordinates: null,
+                        user_profile_image_url: tweet.profile_image_url,
+                        user_screen_name: tweet.from_user,
+                        user_location: '',
+                        user_time_zone: ''
+                    });
+                });
+            })
+            .search('hatsune', {rpp: 30, include_entities: true}, function (data) {
+                data.results.forEach(function (tweet) {
+                    TWIT.tweets.hatsune.push({
+                        id: tweet.id,
+                        text: tweet.text,
+                        coordinates: null,
+                        user_profile_image_url: tweet.profile_image_url,
+                        user_screen_name: tweet.from_user,
+                        user_location: '',
+                        user_time_zone: ''
+                    });
+                });
+            })
             .stream(
                 'statuses/filter', {
-                    track: [hashtag_list.join(',')]
+                    track: [hashtag_list.map(function (h) {return h === 'capricho' ? '@capricho' : h;}).join(',')]
                 },
                 function(stream) {
                     TWIT.stream = stream;
