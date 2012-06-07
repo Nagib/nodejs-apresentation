@@ -157,7 +157,7 @@ var TWIT = {
                             })
                             .forEach(function (hashtag) {
                                 // Limits the tweets buffer to 1000 enttries
-                                if (TWIT.tweets[hashtag].length > 1000) {
+                                if (TWIT.tweets[hashtag].length > 100) {
                                     TWIT.tweets[hashtag].shift();
                                 }
 
@@ -178,6 +178,7 @@ var TWIT = {
                                 }
 
                                 TWIT.tweets[hashtag].push({
+                                    id: tweet.id,
                                     text: tweet.text,
                                     coordinates: tweet.coordinates,
                                     user_profile_image_url: tweet.user.profile_image_url,
