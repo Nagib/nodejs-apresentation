@@ -5,8 +5,6 @@ var CONFIG = require('./config').config;
 var hashtag_list = require('./config').read('hashtag');
 console.log(hashtag_list);
 
-var HASHTAG = '';
-
 var util        = require('util')
   , images      = require('./libraries/images.js').images
   , trends      = require('./libraries/trends.js').trends
@@ -84,21 +82,13 @@ http.createServer(function (request, response) {
   } else if (request.url.search('/twitter/fetch') === 0) {
     var hashtag = request.url.slice(15);
 
-    if (hashtag !== HASHTAG) {
-      twit.stream.destroy();
-      twit.start_stream([hashtag]);
-
-      HASHTAG = hashtag;
-    }
-
-
-    //if (twit.tweets[hashtag] !== undefined) {
+    if (twit.tweets[hashtag] !== undefined) {
       response.writeHead(200, {'Content-Type': 'application/json'});
       response.end(JSON.stringify(twit.tweets[hashtag]));
-    //}
-    //else {
-    //  error_404(response);
-    //}
+    }
+    else {
+      error_404(response);
+    }
   } else {
 
      // set the error page
