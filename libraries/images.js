@@ -1,5 +1,7 @@
 var http = require('http')
-  , error_404   = require('../helpers/url.js').error_404;
+  , error_404   = require('../helpers/url.js').error_404
+  , fs          = require('fs');
+
 
 /*
  *
@@ -32,7 +34,7 @@ var images = {
    * 
    * @var object
    */
-  cache: {},
+  _cache: {},
 
   /*
    * __construct
@@ -55,22 +57,14 @@ var images = {
     // do not make unnecessary requests
     if (query.length < 1) return false;
 
-    // verify if the images cache for the query already created
-    if (! images.cache[query]) {
-
-      // create the images cache for the query
-      images.cache[query] = {
-        _data: [],
-        start: 0,
-        last_index: -1
-      };
-    }
+    // initilize cache
+    images.cache.initialize(query);
 
     // options for Google Image API request
     var options = {
       host: 'ajax.googleapis.com',
       port: 80,
-      path: '/ajax/services/search/images?v=1.0&safe=active&imgsz=medium&q=' + query + '&start=' + images.cache[query].start + '&rsz=' + images.per_page,
+      path: '/ajax/services/search/images?v=1.0&safe=active&imgsz=medium&q=' + query + '&start=' + images._cache[query].start + '&rsz=' + images.per_page,
       method: 'GET'
     };
 
@@ -102,18 +96,15 @@ var images = {
           if (content.responseData !== null) {
 
             // set the images data
-            images.set_data(content.responseData.results, query);
-
-            // set the new start index of the search
-            images.cache[query].start += images.per_page;
+            images.cache.set_data(content.responseData.results, query);
           } else {
 
             //log the error
-            console.log('Images error: can\'t fetch more images. Start: ' + images.cache[query].start + ' Query: ' + query);
+            console.log('Images error: can\'t fetch more images. Start: ' + images._cache[query].start + ' Query: ' + query);
           }
 
           // send the content to server response
-          images.end(JSON.stringify(images.get_data(query)), server_response, {'Content-Type': 'application/json'});
+          images.end(JSON.stringify(images.cache.get_data(query)), server_response, {'Content-Type': 'application/json'});
 
         });
     });
@@ -136,39 +127,78 @@ var images = {
   },
 
   /*
-   * Get the actual search result
-   * 
-   * @param string query for get data
-   * @return void
+   * Cache Object for images
+   *
+   * @
    */
-  get_data: function(query) {
-    return images.cache[query] && images.cache[query]._data ? images.cache[query]._data : [];
-  },
+  cache: {
 
-  /*
-   * Set and format the search result 
-   * 
-   * @param string The JSON of search result
-   * @param string query for set data
-   * @return void
-   */
-  set_data: function(result, query) {
+    /*
+     * Initilize the cache for the query
+     * 
+     * @param string query for get data
+     * @return void
+     */
+    initialize: function(query) {
 
-    // format each image
-    for(var i = 0, size = result.length; i < size; ++i) {
-      var image = result[i];
+      // initilize cache by get
+      images._cache = JSON.parse(fs.readFileSync('./cache/data.json', 'utf-8'));
 
-      // push the formated image to query cache data
-      images.cache[query]._data.push({
-        url: image.unescapedUrl,
-        width: image.width,
-        height: image.height
+      // verify if the cache for the query exists and create
+      if (! images._cache[query]) {
+        images._cache[query] = {
+          start: 0,
+          last_index: -1,
+          _data: []
+        }
+      }
+    },
+
+    /*
+     * Get the actual search result
+     * 
+     * @param string query for get data
+     * @return void
+     */
+    get_data: function(query) {
+      return images._cache[query] && images._cache[query]._data ? images._cache[query]._data : [];
+    },
+
+    /*
+     * Set and format the search result 
+     * 
+     * @param string The JSON of search result
+     * @param string query for set data
+     * @return void
+     */
+    set_data: function(result, query) {
+
+      // format each image
+      for(var i = 0, size = result.length; i < size; ++i) {
+        var image = result[i];
+
+        // push the formated image to query cache data
+        images._cache[query]._data.push({
+          url: image.unescapedUrl,
+          width: image.width,
+          height: image.height
+        });
+
+      }
+
+      // set the max index created
+      images._cache[query].last_index = images._cache[query]._data.length - 1;
+
+      // set the new start index of the search
+      images._cache[query].start += images.per_page;
+
+      //save to cache file
+      fs.writeFileSync('./cache/data.json', JSON.stringify(images._cache), 'utf8', function(err) {
+        
+        if (err)
+          console.log('Cant\'t save the file. Query: ' + query);
       });
-
     }
-
-    // set the max index created
-    images.cache[query].last_index = images.cache[query]._data.length - 1;
   },
 
   /*
