@@ -31,14 +31,14 @@ var images = {
 
   /*
    * Cache for Images of search result
-   * 
+   *
    * @var object
    */
   _cache: {},
 
   /*
    * __construct
-   * 
+   *
    * @return void
    */
   initialize: function() {
@@ -49,7 +49,7 @@ var images = {
    * on _data
    *
    * @param string Query or search expression
-   * @param http.ServerResponse 
+   * @param http.ServerResponse
    * @return boolean
    */
   fetch: function(query, server_response) {
@@ -78,7 +78,7 @@ var images = {
       response.setEncoding('utf8');
 
       response
-        
+
         // get the chunk of the request
         .on('data', function (_chunk) {
 
@@ -135,7 +135,7 @@ var images = {
 
     /*
      * Initilize the cache for the query
-     * 
+     *
      * @param string query for get data
      * @return void
      */
@@ -156,7 +156,7 @@ var images = {
 
     /*
      * Get the actual search result
-     * 
+     *
      * @param string query for get data
      * @return void
      */
@@ -165,8 +165,8 @@ var images = {
     },
 
     /*
-     * Set and format the search result 
-     * 
+     * Set and format the search result
+     *
      * @param string The JSON of search result
      * @param string query for set data
      * @return void
@@ -194,7 +194,7 @@ var images = {
 
       //save to cache file
       fs.writeFileSync('./cache/data.json', JSON.stringify(images._cache), 'utf8', function(err) {
-        
+
         if (err)
           console.log('Cant\'t save the file. Query: ' + query);
       });
@@ -285,7 +285,7 @@ var images = {
       response.setEncoding('binary');
 
       response
-        
+
         // get the chunk of the request
         .on('data', function (_chunk) {
 
@@ -297,7 +297,7 @@ var images = {
         .on('end', function() {
 
           // send the end command to the server response
-          server_response.end();          
+          server_response.end();
         });
     });
 
@@ -306,6 +306,7 @@ var images = {
       // request error event
       .on('error', function(e) {
         console.log('Problem with proxy request: ' + e.message);
+        server_response.end();
       })
 
       // request end
