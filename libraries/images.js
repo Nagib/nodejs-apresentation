@@ -100,7 +100,7 @@ var images = {
           } else {
 
             //log the error
-            console.log('Images error: can\'t fetch more images. Start: ' + images._cache[query].start + ' Query: ' + query);
+            console.log('Images error: can\'t fetch more images. Query: ' + query);
           }
 
           // send the content to server response
